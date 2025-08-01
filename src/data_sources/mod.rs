@@ -14,18 +14,6 @@ pub struct Gig {
     pub name: String,
 }
 
-impl Gig {
-    pub fn _new() -> Self {
-        Self {
-            location: String::from("Helsinki"),
-            age_limit: None,
-            date: String::from("May 16"),
-            website: "https://www.meteli.net/tapahtuma/229505".to_string(),
-            name: String::from("Test gig"),
-        }
-    }
-}
-
 pub type Events = Vec<Gig>;
 
 pub trait EventsTrait {

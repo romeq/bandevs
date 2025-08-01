@@ -1,38 +1,68 @@
 mod data_sources;
 mod utils;
 
-use clap::Parser;
+use clap::{arg, command, Command};
 
 use crate::{data_sources::EventsTrait, utils::colorize};
 
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-struct Args {
-    #[arg(short, long)]
-    bands_file: String,
+fn find_gigs(band: String, verbose: bool) {
+    let mut band_gigs = data_sources::Events::new();
 
-    #[arg(short, long)]
-    verbose: bool,
+    let gigs = data_sources::search(band.replace(" ", "+").to_string(), verbose);
+    band_gigs.add_gigs(gigs);
+
+    let gigs_count = band_gigs.len();
+    if gigs_count > 0 {
+        println!(
+            "{}",
+            colorize(&format!("Gigs for {}:", band).to_string(), "green")
+        );
+    } else {
+        println!("Didn't find any gigs for {}", colorize(&band, "green"))
+    }
+    for gig in band_gigs {
+        println!(
+            "{} @ {}     \t{} ({})",
+            gig.date,
+            gig.location.split(", ").last().unwrap(),
+            colorize(gig.name.split(":").next().unwrap(), "green"),
+            gig.website.as_str()
+        );
+    }
+    if gigs_count > 0 {
+        println!("");
+    }
 }
 
 fn main() {
-    let args = Args::parse();
+    let args = command!()
+        .arg(arg!(-v --verbose "Verbose?"))
+        .subcommand(
+            Command::new("from_file")
+                .about("Parse bands from file")
+                .arg(arg!(-f --file <FILE>).required(true))
+        )
+        .subcommand(
+            Command::new("find")
+                .about("Find gigs for a single band")
+                .arg(arg!(-n --name <NAME>).required(true))
+        )
+        .subcommand_required(true)
+        .get_matches();
 
-    let bands = std::fs::read_to_string(&args.bands_file).unwrap();
-    for band in bands.lines() {
-        let mut all_gigs = data_sources::Events::new();
+    let verbose = args.get_one::<bool>("verbose") == Some(&true);
 
-        let gigs = data_sources::search(band.replace(" ", "+").to_string(), args.verbose);
-        all_gigs.add_gigs(gigs);
-
-        for gig in all_gigs {
-            println!(
-                "{} @ {}     \t{} ({})",
-                gig.date,
-                gig.location.split(", ").last().unwrap(),
-                colorize(gig.name.split(":").next().unwrap(), "green"),
-                gig.website.as_str()
-            );
+    if let Some(matches) = args.subcommand_matches("from_file") {
+        if let Some(bands_file) = matches.get_one::<String>("file") {
+            let bands = std::fs::read_to_string(&bands_file).unwrap();
+            for band in bands.lines() {
+                find_gigs(band.to_string(), verbose);
+            }
+        }
+    }
+    if let Some(matches) = args.subcommand_matches("find") {
+        if let Some(band) = matches.get_one::<String>("name") {
+            find_gigs(band.to_string(), verbose);
         }
     }
 }
