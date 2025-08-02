@@ -24,7 +24,7 @@ fn find_gigs(band: String, verbose: bool, multiple_bands_mode: bool) {
     }
     for gig in band_gigs {
         println!(
-            "{} @ {}     \t{} ({})",
+            "{} @ {:10.10} {} ({})",
             gig.date,
             gig.location.split(", ").last().unwrap(),
             colorize(gig.name.split(":").next().unwrap(), "green"),
