@@ -1,13 +1,10 @@
 // Implement mod.rs -> DataSource trait for https://meteli.net
 
-use crate::data_sources::Gig;
-
 use super::*;
 use std::fmt::{Debug, Error};
-
 use serde_derive::{Deserialize, Serialize};
 
-pub type MeteliNetPageJson = Vec<MeteliNetGig>;
+use crate::data_sources::Gig;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -22,10 +19,14 @@ pub struct MeteliNetGig {
     pub longitude: String,
     pub link: String,
 }
+pub type MeteliNetPageJson = Vec<MeteliNetGig>;
 
+// Initialize MeteliNet struct
 pub struct MeteliNet;
 
+// Allow MeteliNet struct to be used as a DataSource
 impl DataSource for MeteliNet {
+    // Returns a Result containing either an error or events for a band name
     fn get_gigs(&self, band_name: String) -> Result<Events, Error> {
         let endpoint = format!("https://www.meteli.net/tapahtumahaku?q={}", band_name);
 
@@ -45,7 +46,6 @@ impl DataSource for MeteliNet {
                 location: gig.location,
                 name: gig.name.split(":").next().unwrap().to_string(),
                 website: gig.location_url.to_string(),
-                age_limit: None,
                 date: gig.date,
             }]);
         }
@@ -53,6 +53,7 @@ impl DataSource for MeteliNet {
         Ok(events)
     }
 
+    // Returns an identifier that can be displayed in cli's output
     fn name(&self) -> String {
         return String::from("meteli.net");
     }
