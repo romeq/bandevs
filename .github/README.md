@@ -1,4 +1,7 @@
-# Bandevs-cli
+# Bandevs-cli ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/romeq/bandevs) ![GitHub repo size](https://img.shields.io/github/repo-size/romeq/bandevs) ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/romeq/bandevs/.github%2Fworkflows%2Frust.yml)
+
+
+
 Find bands' events from terminal
 
 *As of now, gigs are only searched from https://meteli.net for Finland. More in [Data Sources](#data-sources).*
